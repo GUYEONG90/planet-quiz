@@ -133,6 +133,55 @@ dialog code{background:#0b1026;padding:1px 6px;border-radius:6px}
 .stat{background:var(--card);border-radius:12px;padding:8px;text-align:center;font-size:14px}
 .stat b{display:block;font-size:20px}
 .hidden{display:none!important}
+/* ---------- 모드 전환 ---------- */
+.modes{display:flex;gap:8px;margin-top:10px;background:var(--bg2);padding:6px;border-radius:16px;border:1px solid var(--line)}
+.mode{flex:1;padding:10px;border-radius:12px;border:none;background:transparent;color:var(--sub);font-size:18px;font-weight:800}
+.mode.on{background:var(--accent);color:#2a1d00}
+
+/* ---------- 행성 도감 ---------- */
+.order{display:flex;gap:6px;overflow-x:auto;padding:8px 2px 10px;margin:10px 0 4px;scrollbar-width:thin}
+.order button{flex:1 0 76px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;border-radius:14px;border:2px solid transparent;background:var(--bg2);color:var(--sub);font-size:14px;font-weight:700}
+.order button.on{border-color:var(--accent);color:var(--text);background:var(--card)}
+.order img{width:48px;height:48px;object-fit:contain}
+.order .ord{font-size:11px;color:var(--sub);font-weight:400}
+.order-hint{display:flex;justify-content:space-between;font-size:13px;color:var(--sub);padding:0 4px}
+.book{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:18px;align-items:start}
+@media (max-width:760px){.book{grid-template-columns:1fr}}
+.photo-box{background:#000;border-radius:16px;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.photo-box img{max-width:92%;max-height:92%;object-fit:contain}
+.credit{font-size:11.5px;color:var(--sub);margin-top:6px;line-height:1.5}
+.b-title{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.b-title h2{font-size:34px;margin:0;color:var(--accent)}
+.chip{font-size:13px;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--card);border:1px solid var(--line)}
+.chip.star{color:#ffd166;border-color:#8a6d1f}
+.chip.rock{color:#fda47a;border-color:#8a4a2c}
+.chip.giant{color:#8ecbff;border-color:#2c5a8a}
+.b-intro{font-size:17px;line-height:1.6;margin:8px 0 12px}
+.b-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.b-stat{background:var(--bg2);border-radius:12px;padding:8px 12px}
+.b-stat .k{font-size:12.5px;color:var(--sub)}
+.b-stat .v{font-size:17px;font-weight:800}
+.b-sec{margin-top:12px;background:var(--bg2);border-radius:12px;padding:10px 14px}
+.b-sec h3{margin:0 0 4px;font-size:16px;color:var(--accent)}
+.b-sec ul{margin:0;padding-left:20px;line-height:1.75;font-size:15.5px}
+.b-sec b{color:var(--accent)}
+.b-sec.draw{border:2px dashed #8a6d1f}
+.sizecmp{position:relative;height:150px;overflow:hidden;border-radius:12px;background:#070b1c;display:flex;align-items:flex-end;justify-content:center;gap:28px;padding:10px 10px 26px}
+.sizecmp .it{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;position:relative}
+.sizecmp .lab{position:absolute;bottom:-20px;font-size:12.5px;color:var(--sub);white-space:nowrap}
+.sizecmp .sunarc{position:absolute;top:-9999px}
+.b-nav{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.b-nav .btn{font-size:16px}
+.groups{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+@media (max-width:620px){.groups{grid-template-columns:1fr}}
+.group{background:var(--bg2);border-radius:14px;padding:12px 14px}
+.group h3{margin:0 0 6px;font-size:17px}
+.group .mem{display:flex;gap:8px;margin:6px 0 8px;flex-wrap:wrap}
+.group .mem img{width:40px;height:40px;object-fit:contain;cursor:pointer}
+.group ul{margin:0;padding-left:20px;line-height:1.7;font-size:15px}
+.photo-mini{display:flex;gap:12px;align-items:center;margin-top:10px;background:var(--bg2);border-radius:12px;padding:8px}
+.photo-mini img{width:84px;height:84px;object-fit:contain;background:#000;border-radius:10px}
+.photo-mini .t{font-size:14px;color:var(--sub);line-height:1.5}
 .warn{background:#3b2a07;border:1px solid #8a6d1f;color:#ffe29a;border-radius:12px;padding:10px 12px;font-size:14px;margin-top:10px;line-height:1.6}
 </style>
 </head>
@@ -145,6 +194,46 @@ dialog code{background:#0b1026;padding:1px 6px;border-radius:6px}
     <button class="small-btn" id="btnGuide">👩‍🏫 선생님 안내</button>
   </header>
 
+  <div class="modes">
+    <button class="mode on" data-mode="guess">🔍 AI 맞히기</button>
+    <button class="mode" data-mode="book">📚 행성 도감</button>
+  </div>
+
+  <!-- ===== 행성 도감 ===== -->
+  <section id="viewBook" class="hidden">
+    <div class="order" id="bookOrder"></div>
+    <div class="order-hint"><span>☀️ 태양</span><span>태양에서 가까운 순서 →</span><span>가장 먼 행성</span></div>
+    <div class="card book" id="bookCard" style="margin-top:10px"></div>
+    <div class="card" style="margin-top:16px">
+      <h2 style="margin:0">🪨 지구형 행성 vs 🌪️ 목성형 행성</h2>
+      <div class="groups">
+        <div class="group">
+          <h3>🪨 지구형 행성</h3>
+          <div class="mem" data-g="rock"></div>
+          <ul>
+            <li>크기가 <b>작아요.</b></li>
+            <li>단단한 <b>암석</b> 표면이 있어요.</li>
+            <li><b>고리가 없어요.</b></li>
+            <li>위성이 <b>없거나 적어요</b> (0~2개).</li>
+          </ul>
+        </div>
+        <div class="group">
+          <h3>🌪️ 목성형 행성</h3>
+          <div class="mem" data-g="giant"></div>
+          <ul>
+            <li>크기가 <b>아주 커요.</b></li>
+            <li>주로 <b>기체</b>와 얼음으로 되어 있어 딛고 설 땅이 없어요.</li>
+            <li>모두 <b>고리가 있어요</b> (토성 고리가 가장 뚜렷해요).</li>
+            <li>위성이 <b>아주 많아요.</b></li>
+          </ul>
+        </div>
+      </div>
+      <p class="credit" id="allCredits" style="margin-top:12px"></p>
+    </div>
+  </section>
+
+  <!-- ===== AI 맞히기 ===== -->
+  <section id="viewGuess">
   <div class="tabs">
     <button class="tab on" data-tab="camera">📷 카메라로 비추기</button>
     <button class="tab" data-tab="upload">🖼️ 사진 올리기</button>
@@ -183,6 +272,7 @@ dialog code{background:#0b1026;padding:1px 6px;border-radius:6px}
     <!-- RIGHT: panel -->
     <div class="card panel" id="panel"></div>
   </div>
+  </section>
 </div>
 
 <dialog id="dlgGuide">
@@ -284,8 +374,8 @@ const BODIES = [
     feat:"청록색·하늘색, 세로로 선 희미한 고리",
     facts:["자전축이 거의 <b>누워 있어서</b> 옆으로 누운 채 태양 주위를 돌아요.","대기의 메테인 때문에 <b>청록색</b>으로 보여요.","희미한 고리가 있어요."] },
   { id:"neptune", ko:"해왕성", aliases:["해왕성","neptune"],
-    feat:"진한 파란색, 어두운 점",
-    facts:["태양에서 <b>가장 먼</b> 행성이에요.","태양계에서 <b>바람이 가장 강한</b> 곳 중 하나예요.","진한 파란색으로 보여요."] },
+    feat:"파란색, 어두운 점",
+    facts:["태양에서 <b>가장 먼</b> 행성이에요.","태양계에서 <b>바람이 가장 강한</b> 곳 중 하나예요.","<b>파란색</b>으로 보여요."] },
 ];
 const UNKNOWN_ALIASES = ["모르겠어요","모름","배경","background","unknown","없음","기타","nothing","none"];
 const N = BODIES.length;
@@ -719,9 +809,11 @@ function showCorrect(b){
   panel.innerHTML = `
     <div class="celebrate">🎉✨</div>
     <div class="result-main" style="justify-content:center">${plHTML(b.id,true)}<div class="name">${b.ko}</div></div>
+    ${photoMini(b)}
     <div class="facts"><b>${b.ko}</b>에 대해 알아볼까요?<ul>${b.facts.map(f=>`<li>${f}</li>`).join("")}</ul></div>
     <div class="row"><button class="btn" id="bNext">➡️ 다음 그림</button></div>`;
   $("#bNext").onclick = resetInput;
+  bindBookLinks();
 }
 function pickActual(guess){
   panel.innerHTML = `
@@ -738,11 +830,144 @@ function pickActual(guess){
         <div><h4>✏️ 정답: ${real.ko}</h4>${real.ko}의 특징:<br>${real.feat}</div>
       </div>
       <p class="hint" style="margin-top:10px">💬 <b>생각해 보기:</b> AI는 왜 ${guess.ko}${hasBatchim(guess.ko)?"이라고":"라고"} 생각했을까요? 내 그림에 ${real.ko}의 특징을 더 넣으려면 어떻게 할까요?</p>
+      ${photoMini(real)}
       <div class="facts"><b>${real.ko}</b>에 대해 알아볼까요?<ul>${real.facts.map(f=>`<li>${f}</li>`).join("")}</ul></div>
       <div class="row"><button class="btn" id="bNext">➡️ 다음 그림</button></div>`;
     $("#bNext").onclick = resetInput;
+    bindBookLinks();
   });
 }
+
+/* ---------------- 행성 도감 ---------------- */
+// size: 지구 지름을 1로 했을 때의 지름. 숫자는 초등 수준에 맞게 반올림함.
+const BOOK = {
+  sun: { type:"star", order:"태양계의 중심", size:109, sizeTxt:"지구의 약 109배",
+    moons:"없음 (행성들이 태양 주위를 돌아요)", orbit:"—", temp:"표면 약 5,500℃",
+    intro:"태양계에서 유일하게 <b>스스로 빛을 내는 별</b>이에요. 행성들은 모두 태양 주위를 돌아요.",
+    more:["태양이 없으면 지구는 춥고 깜깜해서 생물이 살 수 없어요.","태양은 뜨거운 기체 덩어리라서 딛고 설 땅이 없어요.","⚠️ 태양은 절대로 맨눈이나 망원경으로 직접 보면 안 돼요!"],
+    draw:["노란색·주황색으로 <b>진하게</b> 칠해요.","둘레에 <b>햇살</b>이나 <b>불꽃</b>을 그려요.","종이에 꽉 차게 <b>크게</b> 그려요."],
+    credit:"NASA/SDO (AIA)" },
+  mercury: { type:"rock", order:"태양에서 1번째", size:0.38, sizeTxt:"지구의 약 0.4배 (가장 작은 행성)",
+    moons:"0개", orbit:"약 88일", temp:"낮 약 430℃ · 밤 약 -180℃",
+    intro:"태양에서 <b>가장 가까운</b> 행성이에요. 공기가 거의 없어서 낮과 밤의 온도 차이가 엄청나요.",
+    more:["크레이터가 많아서 <b>달</b>과 비슷하게 생겼어요.","태양 주위를 가장 빨리 돌아요 (약 88일에 한 바퀴)."],
+    draw:["<b>회색</b>으로 칠해요.","<b>크레이터</b>(작은 동그라미)를 여러 개 그려요.","고리나 줄무늬는 그리지 않아요."],
+    credit:"NASA/JHUAPL/Arizona State University/Carnegie Institution of Washington (MESSENGER)" },
+  venus: { type:"rock", order:"태양에서 2번째", size:0.95, sizeTxt:"지구와 거의 같아요",
+    moons:"0개", orbit:"약 225일", temp:"약 460℃ (가장 뜨거운 행성)",
+    intro:"두꺼운 구름이 열을 가둬서 태양계에서 <b>가장 뜨거운</b> 행성이에요. 수성보다 태양에서 멀지만 더 뜨거워요.",
+    more:["저녁 하늘에 보일 때는 <b>개밥바라기</b>라고도 불렀어요.","다른 행성들과 <b>반대 방향</b>으로 자전해요."],
+    draw:["<b>연노랑·살구색</b>으로 칠해요.","흐릿한 구름 무늬를 살짝 그려도 좋아요.","<b>고리는 그리지 않아요</b> (토성과 헷갈리지 않게!)."],
+    credit:"NASA/JPL-Caltech (Mariner 10)" },
+  earth: { type:"rock", order:"태양에서 3번째", size:1, sizeTxt:"기준 (지름 약 12,700km)",
+    moons:"1개 (달)", orbit:"약 365일 (1년)", temp:"평균 약 15℃",
+    intro:"우리가 사는 행성이에요. 물이 액체 상태로 있고 공기가 있어서 <b>생물이 살 수 있어요.</b>",
+    more:["표면의 약 70%가 바다예요.","스스로 한 바퀴 도는 데(자전) 하루, 태양을 한 바퀴 도는 데(공전) 1년이 걸려요."],
+    draw:["<b>파란 바다</b>와 <b>초록 땅</b>을 함께 그려요.","흰 구름을 조금 그려도 좋아요."],
+    credit:"NASA/Apollo 17 crew" },
+  mars: { type:"rock", order:"태양에서 4번째", size:0.53, sizeTxt:"지구의 약 0.5배",
+    moons:"2개 (포보스, 데이모스)", orbit:"약 687일 (약 2년)", temp:"평균 약 -60℃",
+    intro:"흙에 <b>녹슨 철</b> 성분이 많아서 <b>붉게</b> 보이는 행성이에요.",
+    more:["태양계에서 <b>가장 높은 화산</b>(올림푸스 산)이 있어요.","양쪽 끝(극)에 하얀 얼음이 있어요."],
+    draw:["<b>빨간색·붉은 주황색</b>으로 칠해요.","위쪽에 <b>흰 얼음</b>(극관)을 그려도 좋아요."],
+    credit:"NASA, ESA, Hubble Heritage Team (STScI/AURA)" },
+  jupiter: { type:"giant", order:"태양에서 5번째", size:11.2, sizeTxt:"지구의 약 11배 (가장 큰 행성)",
+    moons:"90개 이상", orbit:"약 12년", temp:"구름 꼭대기 약 -110℃",
+    intro:"태양계에서 <b>가장 큰</b> 행성이에요. 지구가 1,000개 넘게 들어갈 만큼 커요.",
+    more:["줄무늬 구름의 띠들은 서로 다른 방향으로 흘러요.","희미한 고리도 있어요."],
+    draw:["주황·갈색·베이지 <b>가로 줄무늬</b>를 여러 개 그려요.","<b>붉은 타원 점</b>(대적점)을 그려요.","<b>크게</b> 그려요."],
+    credit:"NASA, ESA, A. Simon (Goddard Space Flight Center)" },
+  saturn: { type:"giant", order:"태양에서 6번째", size:9.4, sizeTxt:"지구의 약 9배",
+    moons:"100개 이상", orbit:"약 29년", temp:"약 -140℃",
+    intro:"얼음과 돌 조각으로 된 <b>커다란 고리</b>가 있는 행성이에요. 두 번째로 커요.",
+    more:["고리는 아주 넓지만 두께는 아주 얇아요."],
+    draw:["<b>연노랑</b> 몸통에 <b>가로로 두른 큰 고리</b>를 꼭 그려요!","몸통에 옅은 줄무늬를 그려도 좋아요."],
+    credit:"NASA/JPL/Space Science Institute (Cassini)" },
+  uranus: { type:"giant", order:"태양에서 7번째", size:4.0, sizeTxt:"지구의 약 4배",
+    moons:"20개 이상", orbit:"약 84년", temp:"약 -200℃",
+    intro:"자전축이 거의 <b>옆으로 누워 있어서</b> 굴러가듯이 태양 주위를 도는 행성이에요.",
+    more:["그래서 고리가 <b>세로</b>로 서 있는 것처럼 보여요.","<b>망원경</b>으로 처음 발견된 행성이에요."],
+    draw:["<b>청록색·하늘색</b>으로 칠해요.","<b>세로</b>로 선 가느다란 고리를 그려요."],
+    credit:"NASA/JPL-Caltech (Voyager 2)" },
+  neptune: { type:"giant", order:"태양에서 8번째 (가장 멂)", size:3.9, sizeTxt:"지구의 약 4배",
+    moons:"10개 이상", orbit:"약 165년", temp:"약 -200℃",
+    intro:"태양에서 <b>가장 먼</b> 행성이에요. 태양계에서 <b>바람이 가장 강하게</b> 불어요.",
+    more:["태양을 한 바퀴 도는 데 약 165년이 걸려요.","옛날 사진은 진한 파랑으로 보정되어 있었지만, 실제로는 천왕성과 비슷한 <b>옅은 파란색</b>이라는 연구가 있어요.","어두운 점은 거대한 폭풍이에요."],
+    draw:["<b>파란색</b>으로 진하게 칠해요 (천왕성의 청록색과 구별!).","<b>어두운 점</b>을 그려요."],
+    credit:"NASA/JPL/Voyager-ISS, Aster Cowart" },
+};
+const TYPE_CHIP = { star:'<span class="chip star">⭐ 별(항성)</span>', rock:'<span class="chip rock">🪨 지구형 행성</span>', giant:'<span class="chip giant">🌪️ 목성형 행성</span>' };
+const photo = id => `img/${id}.jpg`;
+let bookId = "sun";
+
+function sizeCompare(id){
+  const k = BOOK[id].size, ko = BODIES[byId[id]].ko;
+  if (id === "sun"){ // 태양은 너무 커서 일부만 보임
+    return `<div class="sizecmp" style="justify-content:flex-end;padding-right:40px">
+      <div class="pl sun" style="--s:520px;position:absolute;left:-400px;top:50%;margin-top:-260px"></div>
+      <div class="it"><div class="pl earth" style="--s:5px"></div><span class="lab">지구 (점!)</span></div>
+      <span style="position:absolute;left:12px;bottom:6px;font-size:12.5px;color:#fff;text-shadow:0 1px 3px #000">태양 (일부만 보여요)</span></div>`;
+  }
+  if (id === "earth") return `<div class="sizecmp"><div class="it"><div class="pl earth" style="--s:90px"></div><span class="lab">지구</span></div></div>`;
+  const earthPx = k > 1 ? Math.max(8, 110/k) : 90;
+  return `<div class="sizecmp">
+    <div class="it"><div class="pl earth" style="--s:${earthPx}px"></div><span class="lab">지구</span></div>
+    <div class="it"><div class="pl ${id}" style="--s:${Math.round(earthPx*k)}px"></div><span class="lab">${ko}</span></div></div>`;
+}
+function renderBook(id){
+  bookId = id;
+  const b = BODIES[byId[id]], d = BOOK[id], i = byId[id];
+  document.querySelectorAll("#bookOrder button").forEach(el=>el.classList.toggle("on", el.dataset.id===id));
+  $("#bookCard").innerHTML = `
+    <div>
+      <div class="photo-box"><img src="${photo(id)}" alt="${b.ko} 실제 사진"></div>
+      <div class="credit">📷 실제 사진 · ${d.credit} (퍼블릭 도메인)</div>
+      <div class="b-sec" style="margin-top:10px"><h3>📏 크기 비교</h3>${sizeCompare(id)}<div class="hint" style="margin-top:4px;font-size:13.5px">${d.sizeTxt}</div></div>
+    </div>
+    <div>
+      <div class="b-title"><h2>${b.ko}</h2>${TYPE_CHIP[d.type]}<span class="chip">${d.order}</span></div>
+      <p class="b-intro">${d.intro}</p>
+      <div class="b-stats">
+        <div class="b-stat"><div class="k">크기 (지름)</div><div class="v">${d.sizeTxt}</div></div>
+        <div class="b-stat"><div class="k">위성 수</div><div class="v">${d.moons}</div></div>
+        <div class="b-stat"><div class="k">태양을 한 바퀴 도는 데</div><div class="v">${d.orbit}</div></div>
+        <div class="b-stat"><div class="k">온도</div><div class="v">${d.temp}</div></div>
+      </div>
+      <div class="b-sec"><h3>✨ 핵심 특징</h3><ul>${[...b.facts, ...d.more].map(f=>`<li>${f}</li>`).join("")}</ul></div>
+      <div class="b-sec draw"><h3>🎨 AI가 알아보게 그리려면?</h3><ul>${d.draw.map(f=>`<li>${f}</li>`).join("")}</ul></div>
+      <div class="b-nav">
+        <button class="btn sec" id="bkPrev" ${i===0?"disabled":""}>◀ ${i>0?BODIES[i-1].ko:""}</button>
+        <button class="btn" id="bkDraw">✏️ 그려서 AI에게 보여주기</button>
+        <button class="btn sec" id="bkNext" ${i===N-1?"disabled":""}>${i<N-1?BODIES[i+1].ko:""} ▶</button>
+      </div>
+    </div>`;
+  if (i>0) $("#bkPrev").onclick = () => renderBook(BODIES[i-1].id);
+  if (i<N-1) $("#bkNext").onclick = () => renderBook(BODIES[i+1].id);
+  $("#bkDraw").onclick = () => setMode("guess");
+}
+function initBook(){
+  $("#bookOrder").innerHTML = BODIES.map((b,i)=>`<button data-id="${b.id}"><img src="${photo(b.id)}" alt="" loading="lazy">${b.ko}<span class="ord">${i===0?"중심":i+"번째"}</span></button>`).join("");
+  $("#bookOrder").querySelectorAll("button").forEach(el => el.onclick = () => renderBook(el.dataset.id));
+  document.querySelectorAll(".group .mem").forEach(box => {
+    box.innerHTML = BODIES.filter(b=>BOOK[b.id].type===box.dataset.g).map(b=>`<img src="${photo(b.id)}" alt="${b.ko}" title="${b.ko}" data-id="${b.id}">`).join("");
+    box.querySelectorAll("img").forEach(im => im.onclick = () => { renderBook(im.dataset.id); window.scrollTo({top:0,behavior:"smooth"}); });
+  });
+  $("#allCredits").innerHTML = "📷 사진 출처 (모두 퍼블릭 도메인): " + BODIES.map(b=>`${b.ko} – ${BOOK[b.id].credit}`).join(" · ");
+}
+function setMode(m){
+  document.querySelectorAll(".mode").forEach(b=>b.classList.toggle("on", b.dataset.mode===m));
+  $("#viewBook").classList.toggle("hidden", m!=="book");
+  $("#viewGuess").classList.toggle("hidden", m!=="guess");
+  if (m === "book"){ stopCamera(); renderBook(bookId); }
+  else { if (!$("#camBox").classList.contains("hidden")) startCamera(); resetInput(); }
+  window.scrollTo({top:0});
+}
+function openBook(id){ bookId = id; setMode("book"); }
+// 결과 화면에 붙는 "실제 사진 + 도감 바로가기"
+function photoMini(b){
+  return `<div class="photo-mini"><img src="${photo(b.id)}" alt="${b.ko} 실제 사진"><div class="t"><b style="color:var(--text)">진짜 ${b.ko}의 모습이에요!</b><br>내 그림과 비교해 보세요.<br><button class="btn sec" style="margin-top:6px;padding:8px 12px;font-size:15px" data-book="${b.id}">📚 ${b.ko} 도감 보기</button></div></div>`;
+}
+function bindBookLinks(){ panel.querySelectorAll("[data-book]").forEach(el => el.onclick = () => openBook(el.dataset.book)); }
 
 /* ---------------- 기록 ---------------- */
 const STATS_KEY = "planetGuessStats_v1";
@@ -803,6 +1028,8 @@ $("#btnGuide").onclick = () => $("#dlgGuide").showModal();
 $("#btnStats").onclick = () => { renderStats(); $("#dlgStats").showModal(); };
 $("#btnResetStats").onclick = () => { if (confirm("이 크롬북의 기록을 모두 지울까요?")) { saveStats({total:0,correct:0,per:{}}); renderStats(); } };
 
+document.querySelectorAll(".mode").forEach(b => b.onclick = () => setMode(b.dataset.mode));
+initBook();
 showIntro();
 startCamera();
 libsReady.catch(e => console.warn(e)).finally(loadModel);
