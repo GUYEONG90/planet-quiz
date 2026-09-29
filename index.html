@@ -223,8 +223,24 @@ dialog code{background:#0b1026;padding:1px 6px;border-radius:6px}
   </div>
 </dialog>
 
-<script src="lib/tf.min.js"></script>
-<script src="lib/teachablemachine-image.min.js"></script>
+<script>
+// 라이브러리가 lib/ 폴더에 있든, index.html 옆에 있든 찾아서 불러옴
+function loadScript(srcs){
+  return new Promise((resolve, reject) => {
+    const tryAt = i => {
+      if (i >= srcs.length) return reject(new Error("불러오기 실패: " + srcs.join(", ")));
+      const el = document.createElement("script");
+      el.src = srcs[i];
+      el.onload = resolve;
+      el.onerror = () => { el.remove(); tryAt(i+1); };
+      document.head.appendChild(el);
+    };
+    tryAt(0);
+  });
+}
+const libsReady = loadScript(["lib/tf.min.js","tf.min.js"])
+  .then(() => loadScript(["lib/teachablemachine-image.min.js","teachablemachine-image.min.js"]));
+</script>
 <script>
 "use strict";
 /* =========================================================
@@ -385,7 +401,7 @@ async function startCamera(){
     $("#btnShoot").disabled = false;
   }catch(e){
     console.warn(e);
-    msg.innerHTML = "카메라를 켤 수 없어요 😢<br>주소창 왼쪽 자물쇠 → 카메라 <b>허용</b> 후 새로고침,<br>또는 위의 <b>🖼️ 사진 올리기</b>를 써 주세요.";
+    msg.innerHTML = "<div>카메라를 켤 수 없어요 😢<br>주소창 왼쪽 자물쇠 → 카메라 <b>허용</b> 후 새로고침,<br>또는 위의 <b>🖼️ 사진 올리기</b>를 써 주세요.</div>";
     $("#btnShoot").disabled = true;
   }
 }
@@ -615,10 +631,10 @@ function showIntro(){
   panel.innerHTML = `
     <h2>이렇게 해 보세요</h2>
     <ul class="steps">
-      <li><span class="n">1</span>흰 종이에 행성(또는 태양)을 <b>하나만 크게</b> 그리고 색칠해요.</li>
-      <li><span class="n">2</span>그림을 <b>노란 원 안에 꽉 차게</b> 비춰요.</li>
-      <li><span class="n">3</span><b>📸 찰칵!</b>을 누르면 AI가 맞혀 봐요.</li>
-      <li><span class="n">4</span>AI가 헷갈리면 질문을 해요. 내 그림을 보고 대답해 주세요!</li>
+      <li><span class="n">1</span><span>흰 종이에 행성(또는 태양)을 <b>하나만 크게</b> 그리고 색칠해요.</span></li>
+      <li><span class="n">2</span><span>그림을 <b>노란 원 안에 꽉 차게</b> 비춰요.</span></li>
+      <li><span class="n">3</span><span><b>📸 찰칵!</b>을 누르면 AI가 맞혀 봐요.</span></li>
+      <li><span class="n">4</span><span>AI가 헷갈리면 질문을 해요. 내 그림을 보고 대답해 주세요!</span></li>
     </ul>
     <p class="hint" style="margin-top:12px">💡 밝은 곳에서, 그림이 흔들리지 않게 비추면 더 잘 맞혀요.</p>`;
 }
@@ -630,9 +646,9 @@ function showUnknown(img, why){
     <h2>🤔 ${why}</h2>
     <p class="hint">이렇게 다시 해 볼까요?</p>
     <ul class="steps">
-      <li><span class="n">✓</span>그림을 <b>더 가까이</b> 대서 노란 원을 꽉 채워요.</li>
-      <li><span class="n">✓</span><b>밝은 곳</b>에서 비춰요.</li>
-      <li><span class="n">✓</span>색칠이 <b>진하게</b> 되어 있는지 확인해요.</li>
+      <li><span class="n">✓</span><span>그림을 <b>더 가까이</b> 대서 노란 원을 꽉 채워요.</span></li>
+      <li><span class="n">✓</span><span><b>밝은 곳</b>에서 비춰요.</span></li>
+      <li><span class="n">✓</span><span>색칠이 <b>진하게</b> 되어 있는지 확인해요.</span></li>
     </ul>
     <div class="row">
       <button class="btn" id="bRetry">🔄 다시 찍기</button>
@@ -789,7 +805,7 @@ $("#btnResetStats").onclick = () => { if (confirm("이 크롬북의 기록을 �
 
 showIntro();
 startCamera();
-loadModel();
+libsReady.catch(e => console.warn(e)).finally(loadModel);
 </script>
 </body>
 </html>
